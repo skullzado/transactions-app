@@ -3,17 +3,9 @@ import { DataTable } from '../components';
 import { GridColDef, GridValueFormatterParams } from '@mui/x-data-grid';
 import { Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { format } from 'date-fns';
-
-interface ITransaction {
-  id: string;
-  referenceNo: string;
-  type: 'Cash In' | 'Cash Out';
-  date: Date;
-  amount: number;
-  fee: number;
-  walletId: string;
-  customerId: string;
-}
+import { AddForm } from '../features';
+import { useState } from 'react';
+import ModalContainer from '../components/ModalContainer';
 
 const SAMPLE_COLUMNS: GridColDef[] = [
   {
@@ -125,6 +117,15 @@ const SAMPLE_ROWS: ITransaction[] = [
 ];
 
 const Transactions = () => {
+  const [open, setOpen] = useState<boolean>(false);
+  const [data, setData] = useState<ITransaction[]>(SAMPLE_ROWS);
+
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+
+  const handleTransaction = (transaction: ITransaction) =>
+    setData((prevData) => [...prevData, transaction]);
+
   return (
     <Box
       sx={{
@@ -134,12 +135,28 @@ const Transactions = () => {
       }}
     >
       <Box sx={{ alignSelf: 'flex-end' }}>
-        <Button variant="contained">Add</Button>
+        <Button
+          variant="contained"
+          onClick={handleOpen}
+        >
+          Add
+        </Button>
       </Box>
       <DataTable
-        rows={SAMPLE_ROWS}
+        rows={data}
         columns={SAMPLE_COLUMNS}
       />
+      <ModalContainer
+        title="Add Transaction"
+        open={open}
+        handleClose={handleClose}
+      >
+        <AddForm
+          handleClose={handleClose}
+          data={data}
+          handleTransaction={handleTransaction}
+        />
+      </ModalContainer>
     </Box>
   );
 };
